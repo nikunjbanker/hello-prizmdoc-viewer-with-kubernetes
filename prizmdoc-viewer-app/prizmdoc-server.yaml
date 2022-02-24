@@ -18,7 +18,7 @@ data:
     cache.directory: "/data/cache"
     workFiles.directory: "/data/cache/workfileCache"
     userDocuments.directory: "/data/cache/userDocuments"
-    viewing.allowDocumentDownload: true
+    viewing.allowDocumentDownload: false
     #viewingPackagesMetadata.storage: "database"
     #viewingPackagesArtifacts.storage: "s3"
     #database.connectionString: "mysql://root:root@mysql.prizmdoc.svc.cluster.local:3306/prizmdb"
@@ -78,23 +78,23 @@ spec:
       labels:
         app.kubernetes.io/name: prizmdoc-server
     spec:
-      initContainers:
-        # Wait for the MySQL to become ready.
-        # The PrizmDoc Server may fail to start if MySQL is unavailable.
-        - name: wait-mysql
-          command:
-            - bash
-            - "-c"
-            - for i in {0..30}; do sleep 5; if mysql --user=root --password=root --host=mysql.prizmdoc.svc.cluster.local --connect-timeout=3 --database=prizmdb --execute="SELECT 1;"; then break; fi; echo $?; done;
-          image: bitnami/mysql:5.7.36-debian-10-r13
-          imagePullPolicy: IfNotPresent
-          resources:
-            limits:
-              cpu: "0"
-              memory: "0"
-            requests:
-              cpu: "0"
-              memory: "0"
+      # initContainers:
+      #   # Wait for the MySQL to become ready.
+      #   # The PrizmDoc Server may fail to start if MySQL is unavailable.
+      #   - name: wait-mysql
+      #     command:
+      #       - bash
+      #       - "-c"
+      #       - for i in {0..30}; do sleep 5; if mysql --user=root --password=root --host=mysql.prizmdoc.svc.cluster.local --connect-timeout=3 --database=prizmdb --execute="SELECT 1;"; then break; fi; echo $?; done;
+      #     image: bitnami/mysql:5.7.36-debian-10-r13
+      #     imagePullPolicy: IfNotPresent
+      #     resources:
+      #       limits:
+      #         cpu: "0"
+      #         memory: "0"
+      #       requests:
+      #         cpu: "0"
+      #         memory: "0"
       containers:
         - name: prizmdoc-server
           image: docker.io/accusoft/prizmdoc-server:latest
@@ -102,12 +102,12 @@ spec:
           env:
             - name: ACCEPT_EULA
               value: "YES"
-            - name: AWS_REGION
-              value: YOUR_AWS_REGION
-            - name: AWS_ACCESS_KEY_ID
-              value: YOUR_AWS_ACCESS_KEY_ID
-            - name: AWS_SECRET_ACCESS_KEY
-              value: YOUR_AWS_SECRET_ACCESS_KEY
+            # - name: AWS_REGION
+            #   value: YOUR_AWS_REGION
+            # - name: AWS_ACCESS_KEY_ID
+            #   value: YOUR_AWS_ACCESS_KEY_ID
+            # - name: AWS_SECRET_ACCESS_KEY
+            #   value: YOUR_AWS_SECRET_ACCESS_KEY
           ports:
             - name: public
               containerPort: 18681
@@ -125,11 +125,11 @@ spec:
               mountPath: /logs
           resources:
             limits:
-              cpu: "2.0"
-              memory: 6Gi
+              cpu: "1.0"
+              memory: 4Gi
             requests:
-              cpu: "2.0"
-              memory: 6Gi
+              cpu: "1.0"
+              memory: 4Gi
           livenessProbe:
             httpGet:
               path: /PCCIS/V1/Service/Current/Health

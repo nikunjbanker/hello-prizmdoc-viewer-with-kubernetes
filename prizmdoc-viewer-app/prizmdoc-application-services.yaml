@@ -8,37 +8,44 @@ data:
   # for details on configuring Prizmdoc Application Services
   pcc.nix.yml: |-
     port: 3000
-    secretKey: "mysecretkey"
+    secretKey: "5c43f90a-d20d-4d8b-b4a0-decc195b77d9"
     pccServer.hostName: "prizmdoc-server.prizmdoc.svc.cluster.local"
     pccServer.port: 18681
     pccServer.scheme: "http"
     pccServer.apiKey: "{ACSAPIKeyIfNecessary}"
     logs.path: "/logs"
     defaults.viewingSessionTimeout: "20m"
+
     documents.storage: "filesystem"
     documents.path: "/data/documents"
     documents.legacyMode: true
+
     markupXml.storage: "filesystem"
     markupXml.path: "/data/markup"
     markupXml.legacyMode: true
     markupLayerRecords.storage: "filesystem"
     markupLayerRecords.path: "/data/markupLayerRecords"
     markupLayerRecords.legacyMode: true
+
     formDefinitions.storage: "filesystem"
     formDefinitions.path: "/data/formDefinitions"
+
     imageStamps.storage: "filesystem"
     imageStamps.path: "/data/imageStamp"
     imageStamps.validTypes: ["png", "jpg", "jpeg", "gif"]
+
     viewingPackagesData.storage: "database"
     viewingPackagesProcesses.storage: "database"
     viewingSessionsData.storage: "database"
     viewingSessionsProcessesMetadata.storage: "database"
+
     viewingPackagesArtifactsMetadata.storage: "database"
     viewingPackagesArtifacts.storage: "filesystem"
     viewingPackagesArtifacts.path: "/data/viewingPackages"
-    database.adapter: "mysql"
-    database.connectionString: "mysql://root:root@mysql.prizmdoc.svc.cluster.local:3306/prizmdb"
-    feature.viewingPackages: "enabled"
+
+    # database.adapter: "mysql"
+    # database.connectionString: "mysql://root:root@mysql.prizmdoc.svc.cluster.local:3306/prizmdb"
+    # feature.viewingPackages: "enabled"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -82,23 +89,23 @@ spec:
       labels:
         app.kubernetes.io/name: prizmdoc-application-services
     spec:
-      initContainers:
-        # Wait for the MySQL to become ready.
-        # The Prizmdoc Application Services may fail to start if MySQL is unavailable.
-        - name: wait-mysql
-          image: bitnami/mysql:5.7.36-debian-10-r13
-          imagePullPolicy: IfNotPresent
-          command:
-            - bash
-            - "-c"
-            - for i in {0..30}; do sleep 5; if mysql --user=root --password=root --host=mysql.prizmdoc.svc.cluster.local --connect-timeout=3 --database=prizmdb --execute="SELECT 1;"; then break; fi; echo $?; done;
-          resources:
-            limits:
-              cpu: "0"
-              memory: "0"
-            requests:
-              cpu: "0"
-              memory: "0"
+      # initContainers:
+      #   # Wait for the MySQL to become ready.
+      #   # The Prizmdoc Application Services may fail to start if MySQL is unavailable.
+      #   - name: wait-mysql
+      #     image: bitnami/mysql:5.7.36-debian-10-r13
+      #     imagePullPolicy: IfNotPresent
+      #     command:
+      #       - bash
+      #       - "-c"
+      #       - for i in {0..30}; do sleep 5; if mysql --user=root --password=root --host=mysql.prizmdoc.svc.cluster.local --connect-timeout=3 --database=prizmdb --execute="SELECT 1;"; then break; fi; echo $?; done;
+      #     resources:
+      #       limits:
+      #         cpu: "0"
+      #         memory: "0"
+      #       requests:
+      #         cpu: "0"
+      #         memory: "0"
       containers:
         - name: prizmdoc-application-services
           image: docker.io/accusoft/prizmdoc-application-services:latest
